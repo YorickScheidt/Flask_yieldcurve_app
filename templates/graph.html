@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block body %}
+<canvas id="yieldCurve" width="900" height="400"></canvas>
+<script>
+
+    const ctx = document.getElementById('yieldCurve');
+    const labels = [{% for item in labels %}
+         '{{ item }}',
+         {% endfor %}];
+    const data = {
+      labels: labels,
+      datasets: [{
+        label: '',
+        data: [{% for item in values %}
+         '{{ item }}',
+         {% endfor %}],
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }]
+    };
+    const config = {
+      type: 'line',
+      data: data,
+    };
+    const myChart = new Chart(ctx, config);
+
+</script>
+{% endblock %}

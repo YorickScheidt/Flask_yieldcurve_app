@@ -2,7 +2,7 @@
 
 Pour installer tous les packages:
 
-pip install -r requirements.txt
+pip install -r requirement.txt
 
 Pour lancer le projet :
 

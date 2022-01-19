@@ -47,6 +47,23 @@
         <input type="submit" class="btn btn-primary" name="Generate Curve"/>
     </form>
 
+    <form action="/csv" method="POST" enctype=multipart/form-data>
+
+        <label for="file">Choose a CSV file :</label>
+
+        <input type="file"
+            id="file" name="file"
+            accept=".csv">
+
+        <div class="form-group">
+            <label> Date </label>
+            <input class= "form-control" type="date" name="obs_date" placeholder="select the date" >
+        </div>
+
+        <input type="submit" class="btn btn-primary" name="Generate Curve"/>
+    </form>
+
+
     <div class="wrapper">
         <canvas id="yieldCurve" width="1600" height="400" margin="50"></canvas>
         <script>

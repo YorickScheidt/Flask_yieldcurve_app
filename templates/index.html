@@ -2,6 +2,12 @@
 
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+
+<script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js'></script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
 {% endblock %}
 
 {% block title %} Home {% endblock %}
@@ -13,15 +19,16 @@
         <div class="col">
             <h1> Yield Curve by Nelson Siegel Model </h1>
             <hr>
-            <p> Choose your parameters and see the Correspondant Yield Curve</p>
+            <h5> Choose your parameters and see the Correspondant Yield Curve</h5>
         </div>
     </div>
-    <form action="/" method="POST">
+    <form action="/index" id="formvalidate" method="POST">
+        <h5> With data from HANA Database : </h5>
 
         <div class="form-group">
             <label> Financial instrument </label>
-            <select name= "RFR_value" class="form-select" aria-label="Default select example">
-                <option selected>Choose the financial instrument</option>
+            <select name= "RFR_value" id ="RFR_value" class="form-select" aria-label="Default select example" required>
+                <option  disabled selected value>Choose the financial instrument</option>
                 <option value="govies">Govies</option>
                 <option value="swap">Swap</option>
             </select>
@@ -29,8 +36,8 @@
 
         <div class="form-group">
             <label> Currency </label>
-            <select name= "currency" class="form-select" aria-label="Default select example">
-                <option selected>Choose the Currency</option>
+            <select name= "currency" id="currency" class="form-select" aria-label="Default select example" required>
+                <option disabled selected value>Choose the Currency</option>
                 <option value="usd">Dollar ($)</option>
                 <option value="eur">Euro (€)</option>
                 <option value="jpy">Yen (¥)</option>
@@ -39,28 +46,32 @@
 
         <div class="form-group">
             <label> Date </label>
-            <input class= "form-control" type="date" name="obs_date" placeholder="select the date" >
+            <input class= "form-control" type="date" name="obs_date" id="obs_date" placeholder="select the date" required>
         </div>
 
         <hr>
 
-        <input type="submit" class="btn btn-primary" name="Generate Curve"/>
+        <button type="submit"> Generate Curve by HANA </button>
     </form>
 
     <form action="/csv" method="POST" enctype=multipart/form-data>
+        <h5> With data from CSV file : </h5>
 
         <label for="file">Choose a CSV file :</label>
 
         <input type="file"
             id="file" name="file"
-            accept=".csv">
+            accept=".csv"
+            required>
 
         <div class="form-group">
             <label> Date </label>
-            <input class= "form-control" type="date" name="obs_date" placeholder="select the date" >
+            <input class= "form-control" type="date" name="obs_date" placeholder="select the date" required >
         </div>
 
-        <input type="submit" class="btn btn-primary" name="Generate Curve"/>
+        <hr>
+
+        <button type="submit" > Generate Curve by CSV </button>
     </form>
 
 
@@ -75,7 +86,7 @@
             const data = {
               labels: labels,
               datasets: [{
-                label: 'Yield Curve',
+                label: 'Yield Curve  ....       Date : {{date}} ___ RFR : {{fin_instrument}} ___ Currency : {{currency}}  ',
                 data: [{% for item in values %}
                  '{{ item }}',
                  {% endfor %}],
@@ -84,10 +95,30 @@
                 tension: 0.1
               }]
             };
+
             const config = {
               type: 'line',
               data: data,
+              options:{
+                  scales: {
+                      x: {
+                          title:{
+                              color: 'rgb(0,100,0)',
+                              display: true,
+                              text: 'Maturity (years)'
+                          }
+                      },
+                      y: {
+                          title:{
+                              color: 'rgb(0,100,0)',
+                              display: true,
+                              text: 'Yield (%)'
+                          }
+                      }
+                  }
+              },
             };
+
             const myChart = new Chart(ctx, config);
         </script>
     </div>

@@ -4,10 +4,15 @@ import numpy as np
 from hdbcli import dbapi
 from nelson_siegel_svensson.calibrate import calibrate_ns_ols
 from scipy.interpolate import InterpolatedUnivariateSpline
+import csv
+import os
+import re
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
+UPLOAD_FOLDER = 'static/files'
+app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER
 
 @app.route('/index', methods=['POST', 'GET'])
 def index():
@@ -108,6 +113,62 @@ def index():
                 </body>
             </html>
             """
+
+
+@app.route("/csv", methods=['POST', 'GET'])
+def genarateByCsv():
+    if request.method == 'POST':
+        req = request.form
+        uploaded_file = request.files['file']
+        if uploaded_file.filename != '':
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+            uploaded_file.save(file_path)
+
+        date = req["obs_date"]
+        dateTab = date.split("-")
+        date = dateTab[2] + "-" + dateTab[1] + "-" + dateTab[0]
+
+
+        t = np.array([])
+        y = np.array([])
+
+        with open(file_path) as csv_file:
+            csv_reader = csv.reader(csv_file)
+
+            row_count = 0
+            toDeleteIndex = 0
+
+            for row in csv_reader:
+                if (row_count == 0):
+                    for data in row:
+                        if (row.index(data) != 0):
+                            t = np.append(t, int(re.search(r'\d+', data).group()))
+                if (row[0] == date):
+                    for data in row:
+                        if (row.index(data) != 0) and data != "":
+                            y = np.append(y, float(data))
+                        if data == "" and t.size >= row.index(data):
+                            t = np.delete(t, row.index(data) - 1)
+                row_count += 1
+
+        curve, status = calibrate_ns_ols(t, y, tau0=1.0)
+        xi = t
+        yi = curve(t)
+        assert status.success
+
+        x = np.linspace(0, 60, 61)
+        order = 1
+        s = InterpolatedUnivariateSpline(xi, yi, k=order)
+        r = s(x)
+        labels = [i for i in x]
+        values = [i for i in r]
+        print(labels)
+        print(curve(t))
+
+        return render_template("index.html", labels=labels, values=values)
+
+    else:
+        return render_template('index.html')
 
 @app.route("/about")
 def about():

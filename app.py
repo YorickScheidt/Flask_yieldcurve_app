@@ -50,6 +50,8 @@ def index():
             y = np.array([])
             for row in records:
                 if row[2] and row[1]:
+                    print("row 1 :"+str(row[1]))
+                    print("row 2 :" + str(row[2]))
                     t = np.append(t, float(row[1]))
                     y = np.append(y, float(row[2]))
 
@@ -57,6 +59,8 @@ def index():
             print(error)
         if conn is not None:
             conn.close()
+        print(y)
+        print(t)
 
         curve, status = calibrate_ns_ols(t, y, tau0=1.0)  # starting value of 1.0 for the optimization of tau
         xi = t
@@ -112,7 +116,6 @@ def genarateByCsv():
                         if data == "" and t.size >= row.index(data):
                             t = np.delete(t, row.index(data) - 1)
                 row_count += 1
-
         curve, status = calibrate_ns_ols(t, y, tau0=1.0)
         xi = t
         yi = curve(t)

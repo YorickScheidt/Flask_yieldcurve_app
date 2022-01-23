@@ -1,0 +1,16 @@
+button {
+    cursor: pointer;
+    background: #00A885;
+    width: 16%;
+    border: 0;
+    padding: 10px 15px;
+    color: #fff;
+    font-size: 18px;
+    -webkit-transition: 0.3s linear;
+    transition: 0.3s linear;
+    margin-bottom: 35px;
+  }
+
+  h5 {
+      margin-bottom:50px ;
+  }
